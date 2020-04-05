@@ -118,9 +118,6 @@ export default class App extends Component {
     selectedShirt: "Small",
     selectedDesign: "Select Theme",
     selectedColor: "Select a color",
-    total: 0,
-    selectedActivity: {},
-    activitiesArray: [],
     selectedPayMethod: "cc",
     validCC: null,
     validZip: null,
@@ -183,7 +180,6 @@ export default class App extends Component {
             />}
             {step === 3 && <ActivitiesInfo
               state={this.state}
-              handleActivities={this.handleActivities}
               setStateValidation={this.setStateValidation}
               nextStep={this.nextStep}
               prevStep={this.prevStep}

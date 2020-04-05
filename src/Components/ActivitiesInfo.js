@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'
 
 export default function ActivitiesInfo({ 
     nextStep, prevStep, setStateValidation,
-    handleActivities, state
+    state,
 }) {
+    const { validationErrors } = state;
     const checkboxes = [
         {
             index: 0,
@@ -88,7 +89,13 @@ export default function ActivitiesInfo({
             .map(checkbox => checkbox.index);
 
         setDisabledIndexes(indexesToDisable);
+
+        activitiesArray.length < 1 
+            ? setStateValidation('validationErrors', true) 
+            : setStateValidation('validationErrors', false)
     }, [activitiesArray]);
+
+    const canProceed = !validationErrors && activitiesArray.length > 0;
 
     return (
         <fieldset className="activities">
@@ -115,7 +122,7 @@ export default function ActivitiesInfo({
             <span>Must select at least one option</span>
 
             <button onClick={prevStep}>Back</button>
-            <button onClick={nextStep}>Next</button>
+            <button onClick={canProceed ? nextStep : undefined}>Next</button>
         </fieldset>
     )
 }
