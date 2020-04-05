@@ -56,6 +56,7 @@ export default function ActivitiesInfo({
         },
     ]
 
+    let [activitiesArray, setActivitiesArray] = useState([]);
     let [total, setTotal] = useState(0);
     let [disabledIndexes, setDisabledIndexes] = useState([]);
 
@@ -67,8 +68,6 @@ export default function ActivitiesInfo({
 
     // add/ remove any checked items to the array and handle duplicates
     const handleActivities = (e, cb) => {
-        setSelectedActivity(cb);
-
         const removeActivities = activitiesArray.filter(activity => cb.name !== activity.name);
 
         e.target.checked
@@ -76,54 +75,20 @@ export default function ActivitiesInfo({
             : setActivitiesArray([...removeActivities]);
     }
 
-    let useIndexDisabler = (currentActivity) => {
-        let [state, setState] = useState();
-
-        useEffect(() => {
-            checkboxes.filter(cb => cb.time === currentActivity.time)
-                .filter(item => {
-                    if (item.index !== currentActivity.index) {
-                        setState(item.index);
-                        // console.log("useIndexDisabler", { "index to disable": state, "current act": currentActivity.index })
-                    }
-                }
-            );
-
-        }, [currentActivity, state])
-        
-        return state;
-    }
-
-    let hasDuplicate = arr => arr.some((val, i) => arr.indexOf(val) !== i);
-
-    // value that gets pushed into disabledIndexes
-    let indexToDisable = useIndexDisabler(selectedActivity);
-
-    const handleDisablingCheckboxes = (e) => {
-        // check bc the initial value of indexToDisable is undefined
-        // if (!hasDuplicate(disabledIndexes)) return;
-        if (indexToDisable !== undefined) {
-            let indexToRemove = disabledIndexes.filter(i => i !== indexToDisable)
-            // TODO : Make sure the items are getting removed properly inside of useEffect instead of here
-            // don't allow duplicates to get added
-            e.target.checked
-                ? setDisabledIndexes(val => [...val, indexToDisable])
-                : setDisabledIndexes([...indexToRemove])
-        }
-    }
-
-    // will only update when indexToDisable changes
+    // will only update when activitiesArray changes
     useEffect(() => {
-        if (!hasDuplicate(disabledIndexes) && indexToDisable !== undefined) {
-            setDisabledIndexes(val => [...val, indexToDisable])
-        }
-    }, [indexToDisable])
+        const activitiesTimes = activitiesArray.map(({ time }) => time);
+        const activitiesIndexes = activitiesArray.map(({ index }) => index);
+        const indexesToDisable = checkboxes
+            .filter(
+                checkbox =>
+                    activitiesTimes.includes(checkbox.time) &&
+                    !activitiesIndexes.includes(checkbox.index)
+            )
+            .map(checkbox => checkbox.index);
 
-    console.log({ 
-        "disabled indexes": disabledIndexes, 
-        "current index": state.selectedActivity.index, 
-        "indexToDisable": indexToDisable,
-    });
+        setDisabledIndexes(indexesToDisable);
+    }, [activitiesArray]);
 
     return (
         <fieldset className="activities">
@@ -137,7 +102,6 @@ export default function ActivitiesInfo({
                         onChange={(e) => {
                             handlePrice(e, cb.price);
                             handleActivities(e, cb);
-                            handleDisablingCheckboxes(e)
                         }}
                         disabled={disabledIndexes.includes(index)}
                     /> 
