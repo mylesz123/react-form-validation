@@ -65,17 +65,43 @@ export default function ActivitiesInfo({
             : setTotal(prevState => prevState -= price)
     }
 
-    let indexToDisable;
-    checkboxes.filter(cb => cb.time === state.selectedActivity.time)
-        .filter(item => {
-            if (item.index !== state.selectedActivity.index) {
-                indexToDisable = item.index;
-            }
-        }
-    );
-   
+    // add/ remove any checked items to the array and handle duplicates
+    const handleActivities = (e, cb) => {
+        setSelectedActivity(cb);
+
+        const removeActivities = activitiesArray.filter(activity => cb.name !== activity.name);
+
+        e.target.checked
+            ? setActivitiesArray([...activitiesArray, {...cb}])
+            : setActivitiesArray([...removeActivities]);
+    }
+
+    let useIndexDisabler = (currentActivity) => {
+        let [state, setState] = useState();
+
+        useEffect(() => {
+            checkboxes.filter(cb => cb.time === currentActivity.time)
+                .filter(item => {
+                    if (item.index !== currentActivity.index) {
+                        setState(item.index);
+                        // console.log("useIndexDisabler", { "index to disable": state, "current act": currentActivity.index })
+                    }
+                }
+            );
+
+        }, [currentActivity, state])
+        
+        return state;
+    }
+
+    let hasDuplicate = arr => arr.some((val, i) => arr.indexOf(val) !== i);
+
+    // value that gets pushed into disabledIndexes
+    let indexToDisable = useIndexDisabler(selectedActivity);
+
     const handleDisablingCheckboxes = (e) => {
         // check bc the initial value of indexToDisable is undefined
+        // if (!hasDuplicate(disabledIndexes)) return;
         if (indexToDisable !== undefined) {
             let indexToRemove = disabledIndexes.filter(i => i !== indexToDisable)
             // TODO : Make sure the items are getting removed properly inside of useEffect instead of here
@@ -86,9 +112,11 @@ export default function ActivitiesInfo({
         }
     }
 
-    // use effect will only update when the value of indexToDisable changes.
+    // will only update when indexToDisable changes
     useEffect(() => {
-        if (indexToDisable !== undefined) setDisabledIndexes(val => [...val, indexToDisable])
+        if (!hasDuplicate(disabledIndexes) && indexToDisable !== undefined) {
+            setDisabledIndexes(val => [...val, indexToDisable])
+        }
     }, [indexToDisable])
 
     console.log({ 
