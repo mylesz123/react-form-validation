@@ -73,11 +73,11 @@ export default function ActivitiesInfo({
             }
         }
     );
-
+   
     const handleDisablingCheckboxes = (e) => {
+        // check bc the initial value of indexToDisable is undefined
         if (indexToDisable !== undefined) {
             let indexToRemove = disabledIndexes.filter(i => i !== indexToDisable)
-
             // TODO : Make sure the items are getting removed properly inside of useEffect instead of here
             // don't allow duplicates to get added
             e.target.checked
@@ -85,17 +85,16 @@ export default function ActivitiesInfo({
                 : setDisabledIndexes([...indexToRemove])
         }
     }
+
+    // use effect will only update when the value of indexToDisable changes.
     useEffect(() => {
         if (indexToDisable !== undefined) setDisabledIndexes(val => [...val, indexToDisable])
-        //causes infinite loop
-        // return () => setDisabledIndexes([...indexToRemove]) 
     }, [indexToDisable])
 
     console.log({ 
         "disabled indexes": disabledIndexes, 
         "current index": state.selectedActivity.index, 
         "indexToDisable": indexToDisable,
-        "is indexToDisable included?": disabledIndexes.includes(indexToDisable),
     });
 
     return (
