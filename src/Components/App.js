@@ -118,9 +118,6 @@ export default class App extends Component {
     selectedShirt: "Small",
     selectedDesign: "Select Theme",
     selectedColor: "Select a color",
-    total: 0,
-    selectedActivity: {},
-    activitiesArray: [],
     selectedPayMethod: "cc",
     validCC: null,
     validZip: null,
@@ -144,27 +141,6 @@ export default class App extends Component {
 
   setStateValidation = (input, bool) => {
     this.setState({ [input]: bool });
-  }
-
-  // add/ remove any checked items to the array and handle duplicates
-  handleActivities = (e, cb) => {
-    this.setState({ selectedActivity: cb })
-
-    if (e.target.checked) {
-      this.setState(state => {
-        if (!state.activitiesArray.includes(state.selectedActivity)) {
-          return { activitiesArray: [...state.activitiesArray, state.selectedActivity] }
-        }
-      })
-    } else {
-      let activities = this.state.activitiesArray.filter(activity => {
-        return cb.index !== activity.index;
-      });
-
-      this.setState({
-        activitiesArray: [...activities],
-      });
-    } 
   }
 
   handleChange = input => e => {
@@ -204,7 +180,6 @@ export default class App extends Component {
             />}
             {step === 3 && <ActivitiesInfo
               state={this.state}
-              handleActivities={this.handleActivities}
               setStateValidation={this.setStateValidation}
               nextStep={this.nextStep}
               prevStep={this.prevStep}
