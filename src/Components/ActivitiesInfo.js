@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react'
 
-export default function ActivitiesInfo({ 
-    nextStep, prevStep, setStateValidation,
-    state,
+import React, { useState, useEffect } from "react";
+
+export default function ActivitiesInfo({
+    nextStep,
+    prevStep,
+    setStateValidation,
+    handleActivities,
+    handlePrice,
+    state: { activitiesArray, validationErrors },
 }) {
-    const { validationErrors } = state;
     const checkboxes = [
         {
             index: 0,
@@ -55,26 +59,10 @@ export default function ActivitiesInfo({
             body: "Npm Workshop : ",
             time: "Wednesday 1pm - 4pm",
         },
-    ]
+    ];
 
-    let [activitiesArray, setActivitiesArray] = useState([]);
     let [total, setTotal] = useState(0);
     let [disabledIndexes, setDisabledIndexes] = useState([]);
-
-    const handlePrice = (e, price) => {
-        e.target.checked
-            ? setTotal(prevState => prevState += price)
-            : setTotal(prevState => prevState -= price)
-    }
-
-    // add/ remove any checked items to the array and handle duplicates
-    const handleActivities = (e, cb) => {
-        const removeActivities = activitiesArray.filter(activity => cb.name !== activity.name);
-
-        e.target.checked
-            ? setActivitiesArray([...activitiesArray, {...cb}])
-            : setActivitiesArray([...removeActivities]);
-    }
 
     // will only update when activitiesArray changes
     useEffect(() => {
@@ -90,8 +78,8 @@ export default function ActivitiesInfo({
 
         setDisabledIndexes(indexesToDisable);
 
-        activitiesArray.length < 1 
-            ? setStateValidation('validationErrors', true) 
+        activitiesArray.length < 1
+            ? setStateValidation('validationErrors', true)
             : setStateValidation('validationErrors', false)
     }, [activitiesArray]);
 
@@ -99,30 +87,29 @@ export default function ActivitiesInfo({
 
     return (
         <fieldset className="activities">
-            <legend>Register for Activities</legend> 
-            {checkboxes.map( (cb, index) => (
+            <legend>Register for Activities</legend>
+            {checkboxes.map((cb, index) => (
                 <label key={cb.name}>
-                    <input 
-                        type="checkbox" 
+                    <input
+                        type="checkbox"
                         name={cb.name}
                         price={cb.price}
-                        onChange={(e) => {
+                        onChange={e => {
                             handlePrice(e, cb.price);
                             handleActivities(e, cb);
                         }}
                         disabled={disabledIndexes.includes(index)}
-                    /> 
-                    {cb.body}{cb.time}, ${cb.price} 
+                    />
+                    {cb.body}
+                    {cb.time}, ${cb.price}
                 </label>
             ))}
-            {total !== 0 &&
-                <span>Total = {total} </span>
-            }
+            {total !== 0 && <span>Total = {total} </span>}
             <br />
             <span>Must select at least one option</span>
 
             <button onClick={prevStep}>Back</button>
             <button onClick={canProceed ? nextStep : undefined}>Next</button>
         </fieldset>
-    )
+    );
 }
